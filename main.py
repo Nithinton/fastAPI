@@ -6,20 +6,26 @@ from typing import Optional
 
 app = FastAPI()
 
-class PostRequestDTO(BaseModel):
+post_db = [{"id": 1, "title": "sample post"},{"id": 2, "title": "test 123", "content": "sample content", "rating": 4}]
+
+class Post(BaseModel):
+    id: int
     title: str
-    content: str
+    content: str = None
     createdAt : datetime = datetime.now()
-    # rating : int = None 
-    # This means that if rating is not provided when creating an instance of the model, it will default to None. 
-    # However, once the instance is created, rating must be an integer and cannot be None
     rating : Optional[int] = None
 
-@app.get("/")
-async def home():
-    return {"message": "hello world"}
+@app.get("/posts")
+async def getPosts():
+    return {"data": post_db}
 
-@app.post("/createpost")
-async def createPost(payload: PostRequestDTO):
-    print(payload)
-    return (payload)
+@app.get("/posts/{id}")
+async def getPostById(id: int):
+    for post in post_db:
+        if post['id'] == id :
+            return post
+
+@app.post("/posts")
+async def createPost(payload: Post):
+    post_db.append(payload)
+    return (post_db)
