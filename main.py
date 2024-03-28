@@ -36,3 +36,23 @@ async def createPost(payload: Post):
     post_db.append(payload)
     return ({"data": payload.dict()})
 
+def find_index_by_id(id):
+    for i,p in enumerate(post_db):
+        if p["id"] == id:
+            return i        
+
+@app.put("/posts/{id}")
+def update_post(id:int, post: Post):
+    index = find_index_by_id(id)
+    if index == None:
+        raise HTTPException(status_code= status.HTTP_404_NOT_FOUND, details = f"Post with {id} doesn't exists.")
+    post_db[index] = post
+    return {"msg": "updated successfully."}
+
+@app.delete("/posts/{id}")
+async def deletePost(id: int):
+    index = find_index_by_id(id)
+    if index == None:
+        raise HTTPException(status_code= status.HTTP_404_NOT_FOUND, details = f"Post with {id} doesn't exists.")
+    post_db.pop(index)
+    return Response(staus_code = status.HTTP_204_NO_CONTENT)
